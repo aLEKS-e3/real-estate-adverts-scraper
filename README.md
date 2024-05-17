@@ -1,6 +1,6 @@
 # Real Estate Scraper
 
-The Real Estate Scraper is a Python tool engineered to facilitate the gathering of data about real estate listings, including prices, locations, images, descriptions, and other related information. This scraper uses Selenium to automate the process of collecting data from the realtylink.org website.
+The Real Estate Scraper is a Python tool engineered to facilitate the gathering of data about real estate listings, including prices, locations, images, descriptions, and other related information. This scraper uses Selenium to automate the process of collecting data from the [realtylink.org](https://realtylink.org/en) website.
 
 ## Features
 
