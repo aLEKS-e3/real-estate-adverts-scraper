@@ -66,3 +66,117 @@ class ResidentialThumbnailScraper(BaseScraper):
             self._next_page()
 
         return detail_links[:amount]
+
+class ResidentialAdvertScraper(BaseScraper):
+    def _get_location(self) -> tuple:
+        location = self.driver.find_element(
+            By.CSS_SELECTOR, "h2[itemprop='address']"
+        ).text
+        return tuple(location.split(", ", 1))
+
+    def _get_description(self) -> str:
+        try:
+            description = self.driver.find_element(
+                By.CSS_SELECTOR,
+                "div.property-description > div[itemprop='description']"
+            ).text
+        except NoSuchElementException:
+            description = "No description"
+
+        return description
+
+    def _get_price(self) -> str:
+        return self.driver.find_element(
+            By.CLASS_NAME, "price"
+        ).text
+
+    def _get_area(self) -> str:
+        return self.driver.find_element(
+            By.CLASS_NAME, "carac-value"
+        ).text
+
+    def _get_bathrooms_amount(self) -> str | int:
+        try:
+            bathrooms_str = self.driver.find_element(
+                By.CLASS_NAME, "sdb"
+            ).text
+            bathrooms = int(bathrooms_str.split()[0])
+        except NoSuchElementException:
+            bathrooms = "No data"
+
+        return bathrooms
+
+    def _get_bedrooms_amount(self) -> str | int:
+        try:
+            bedrooms_str = self.driver.find_element(
+                By.CLASS_NAME, "cac"
+            ).text
+            bedrooms = int(bedrooms_str.split()[0])
+        except NoSuchElementException:
+            bedrooms = "No data"
+
+        return bedrooms
+
+    def get_photo_links(self, amount: int) -> list:
+        photo_links = []
+
+        for _ in range(amount):
+            image = self.driver.find_element(By.CSS_SELECTOR, "div.image-wrapper img")
+            source = image.get_attribute("src")
+            photo_links.append(source)
+
+            photo = self.driver.find_element(
+                By.CSS_SELECTOR, "img#fullImg"
+            )
+            photo.click()
+
+        return photo_links
+
+    def _get_image_data(self) -> list | None:
+        img = self.driver.find_element(
+            By.CSS_SELECTOR, "div.primary-photo-container"
+        )
+        ActionChains(self.driver).move_to_element(img).click(img).perform()
+
+        try:
+            amount_obj = WebDriverWait(self.driver, 1).until(
+                EC.element_to_be_clickable(
+                    (By.CSS_SELECTOR, "div.image-wrapper > div.description")
+                )
+            )
+            amount = int(amount_obj.text.split("/")[1])
+            return self.get_photo_links(amount)
+        except TimeoutException:
+            return None
+
+    def scrape_advert(self, url: str) -> dict:
+        self.driver.get(url)
+
+        title = WebDriverWait(self.driver, 2).until(
+            EC.presence_of_element_located(
+                (By.CSS_SELECTOR, "span[data-id='PageTitle']")
+            )
+        ).text
+
+        region, address = self._get_location()
+        description = self._get_description()
+        bathrooms = self._get_bathrooms_amount()
+        bedrooms = self._get_bedrooms_amount()
+        area = self._get_area()
+        price = self._get_price()
+        image_links = self._get_image_data()
+
+        return {
+            "url": url,
+            "title": title,
+            "region": region,
+            "address": address,
+            "description": description,
+            "rooms": {
+                "bathrooms": bathrooms,
+                "bedrooms": bedrooms
+            },
+            "area": area,
+            "price": price,
+            "images": image_links
+        }
