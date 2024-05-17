@@ -28,6 +28,7 @@ class BaseScraper:
         )
         return self.options
 
+
 class ResidentialThumbnailScraper(BaseScraper):
     def _next_page(self):
         next_button = self.driver.find_element(
@@ -66,6 +67,7 @@ class ResidentialThumbnailScraper(BaseScraper):
             self._next_page()
 
         return detail_links[:amount]
+
 
 class ResidentialAdvertScraper(BaseScraper):
     def _get_location(self) -> tuple:
