@@ -1,9 +1,7 @@
 from file_manager import write_to_json
 from scraper import ResidentialThumbnailScraper, ResidentialAdvertScraper
 
-
-BASE_URL = "https://realtylink.org/en/properties~for-rent"
-ADVERTS_AMOUNT = 60
+from constants import  BASE_URL, ADVERTS_AMOUNT, JSON_NAME
 
 
 def main(url: str, adverts_amount: int) -> list[dict]:
@@ -21,4 +19,4 @@ def main(url: str, adverts_amount: int) -> list[dict]:
 
 if __name__ == "__main__":
     data = main(BASE_URL, ADVERTS_AMOUNT)
-    write_to_json("real-estate-example.json", data)
+    write_to_json(FILE, data)
