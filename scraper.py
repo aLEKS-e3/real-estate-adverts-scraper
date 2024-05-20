@@ -97,27 +97,22 @@ class ResidentialAdvertScraper(BaseScraper):
             By.CLASS_NAME, "carac-value"
         ).text
 
-    def _get_bathrooms_amount(self) -> str | int:
+    def _get_rooms_amount(self, css_class: str) -> str | int:
         try:
-            bathrooms_str = self.driver.find_element(
-                By.CLASS_NAME, "sdb"
+            rooms_str = self.driver.find_element(
+                By.CLASS_NAME, css_class
             ).text
-            bathrooms = int(bathrooms_str.split()[0])
+            rooms = int(rooms_str.split()[0])
         except NoSuchElementException:
-            bathrooms = "No data"
+            rooms = "No data"
 
-        return bathrooms
+        return rooms
+
+    def _get_bathrooms_amount(self) -> str | int:
+        return self._get_rooms_amount("sdb")
 
     def _get_bedrooms_amount(self) -> str | int:
-        try:
-            bedrooms_str = self.driver.find_element(
-                By.CLASS_NAME, "cac"
-            ).text
-            bedrooms = int(bedrooms_str.split()[0])
-        except NoSuchElementException:
-            bedrooms = "No data"
-
-        return bedrooms
+        return self._get_rooms_amount("cac")
 
     def get_photo_links(self, amount: int) -> list:
         photo_links = []
